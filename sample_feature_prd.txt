@@ -1,0 +1,24 @@
+# Product Requirement Document (PRD)
+Project: Self-Serve Onboarding & PLG Activation Loop
+Author: Growth Product Team
+Status: Draft / Under Review
+Target Release: Q4
+
+## 1. Problem Statement
+Currently, 62% of newly signed-up users drop off before completing their first workflow. The current sign-up requires a mandatory 8-field company profile form, causing high initial friction and low Day-1 activation.
+
+## 2. Proposed Hypothesis
+By removing upfront form friction and replacing it with an interactive 3-step "First Value" walkthrough (allowing users to experience core utility within 90 seconds), we hypothesize that:
+- Day-1 Activation Rate will increase from 28% to 45%.
+- Week-1 User Retention will improve by 15 percentage points.
+
+## 3. Key Proposed Features
+1. Frictionless Signup: 1-click Google / GitHub OAuth.
+2. Dynamic Role Personalization: 2 quick questions to customize the user workspace.
+3. Interactive Template Generator: Pre-populate starter templates based on user role.
+4. Embedded Micro-Aha Moment: Highlight key value metric within the first session.
+
+## 4. Growth Questions for Lenny's Growth Assistant
+1. How would Elena Verna evaluate this product-led growth loop versus traditional sales-assisted onboarding?
+2. What specific activation benchmarks should we track based on Lenny's podcast interviews?
+3. How does Rahul Vohra's Superhuman PMF survey methodology apply to measuring whether this onboarding redesign is working?

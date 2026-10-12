@@ -1,0 +1,34 @@
+# Environment & Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Database & Storage
+*.db
+*.sqlite3
+*.sqlite
+postgres_data/
+
+# Python & Pytest
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Node & Frontend
+node_modules/
+dist/
+.npm
+*.tsbuildinfo
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+~$*
+*.docx
