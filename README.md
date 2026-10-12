@@ -2,6 +2,10 @@
 > **Full-Stack Grounded AI Assistant & Content Generation Engine**  
 > *Built for the Forward Deployed Engineer Engagement Assignment*
 
+[![The Lenny Growth Assistant Demo](youtube_thumbnail.jpg)](https://youtu.be/ploj5hJbAvA)
+
+▶️ **Watch the 3-Minute Walkthrough Video**: [https://youtu.be/ploj5hJbAvA](https://youtu.be/ploj5hJbAvA)
+
 ---
 
 ## 🌟 1. Executive Summary & Forward Deployed Brief
@@ -118,25 +122,139 @@ PostgreSQL / SQLite Fallback          Local Ollama Service           Cloud LLMs 
 
 ---
 
-## ⚡️ 4. Quick Start: One-Command Docker Setup
+## 📋 4. Prerequisites & Installation
 
-The entire application can be launched in a single command using Docker Compose:
+### Prerequisites
+Before running the application, ensure you have the following installed:
+* **Docker & Docker Compose** (Recommended for 1-command startup) — [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+* **Python 3.11+** — [Python Downloads](https://www.python.org/downloads/)
+* **Node.js v18+ & npm** — [Node.js Downloads](https://nodejs.org/)
+* **Ollama** (Required for the local model demo) — [Ollama Installation](https://ollama.com/download)
+* **Git** — [Git SCM](https://git-scm.com/)
 
-### 1. Clone & Configure Environment
+### Installation
+Clone the repository and prepare the environment file:
 ```bash
+# 1. Clone the repository
 git clone https://github.com/sarthar3/Lenny-Growth-Assistant.git
 cd Lenny-Growth-Assistant
 
-# Copy default environment configuration
+# 2. Copy the default environment template
 cp .env.example .env
 ```
 
-### 2. Launch with Docker Compose
-```bash
-docker-compose up --build
+---
+
+## ⚙️ 5. Environment Variables Configuration
+
+The application uses Pydantic Settings (`backend/app/config.py`) to manage configuration. Key variables defined in `.env`:
+
+| Variable | Default Value | Required? | Description |
+| :--- | :--- | :--- | :--- |
+| `HOST` | `0.0.0.0` | Optional | Backend API host interface |
+| `PORT` | `8000` | Optional | Backend API listening port |
+| `ENVIRONMENT` | `development` | Optional | Runtime environment (`development` / `production`) |
+| `LOG_LEVEL` | `INFO` | Optional | Structured log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@db:5432/lenny_growth_db` | Optional | PostgreSQL async URL. Falls back to SQLite if unreachable |
+| `LLM_PROVIDER` | `groq` | **Required** | Active LLM provider (`groq`, `ollama`, `anthropic`, `openai`, `mock_local`) |
+| `GROQ_API_KEY` | *(your key)* | Optional | Groq API Key (recommended for sub-second responses) |
+| `GROQ_MODEL` | `qwen/qwen3.8-27b` | Optional | Model ID for Groq provider |
+| `OLLAMA_BASE_URL`| `http://localhost:11434` | Optional | Ollama service address for local offline inference |
+| `OLLAMA_MODEL` | `llama3.2` | Optional | Model tag pulled in Ollama |
+| `ANTHROPIC_API_KEY` | *(your key)* | Optional | Claude API Key for Anthropic provider |
+| `ANTHROPIC_MODEL` | `claude-3-5-sonnet-20241022` | Optional | Anthropic model identifier |
+| `OPENAI_API_KEY` | *(your key)* | Optional | OpenAI API Key |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Optional | OpenAI model identifier |
+| `TRANSCRIPT_DIR` | `./data/transcripts_repo/episodes` | Optional | Relative path to raw podcast transcript JSON files |
+| `TOP_K_RETRIEVAL`| `5` | Optional | Number of grounded transcript chunks to retrieve |
+
+---
+
+## 🤖 6. Local and Cloud Model Setup
+
+The Lenny Growth Assistant supports seamless switching between local offline models and cloud frontier models.
+
+### 6.1 Local LLM Setup (Ollama — Mandatory for Demo)
+To run the assistant completely locally without sending data to external APIs:
+
+1. **Start the Ollama daemon:**
+   ```bash
+   ollama serve
+   ```
+
+2. **Pull the lightweight demo model (`llama3.2`):**
+   ```bash
+   ollama pull llama3.2
+   ```
+
+3. **Verify the model is ready:**
+   ```bash
+   curl http://localhost:11434/api/tags
+   ```
+
+4. **Activate Ollama in your `.env`:**
+   ```ini
+   LLM_PROVIDER=ollama
+   OLLAMA_BASE_URL=http://localhost:11434
+   OLLAMA_MODEL=llama3.2
+   ```
+
+---
+
+### 6.2 Cloud Model Setup
+
+#### Groq Cloud (Recommended for Evaluators)
+Provides sub-second inference (~200ms latency) for instant chat and live artifact generation:
+```ini
+LLM_PROVIDER=groq
+GROQ_API_KEY=gsk_your_groq_api_key_here
+GROQ_MODEL=qwen/qwen3.8-27b
 ```
 
-### 3. Access the Application
+#### Anthropic Claude
+```ini
+LLM_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your_anthropic_api_key_here
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+```
+
+#### OpenAI
+```ini
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-your_openai_api_key_here
+OPENAI_MODEL=gpt-4o-mini
+```
+
+#### Zero-Key Offline Fallback (`mock_local`)
+For instant testing without any local daemon or API keys:
+```ini
+LLM_PROVIDER=mock_local
+```
+
+---
+
+## 🚀 7. Run Commands
+
+You can run the application either with **Docker Compose (one-command setup)** or as **standalone local development processes**.
+
+### Option A: One-Command Docker Setup (Recommended)
+This launches the FastAPI backend, React frontend, and PostgreSQL database simultaneously:
+
+```bash
+# 1. Build and start all containers in the foreground
+docker-compose up --build
+
+# 2. Or start in detached (background) mode
+docker-compose up -d --build
+
+# 3. View live application logs
+docker-compose logs -f
+
+# 4. Stop all services
+docker-compose down
+```
+
+#### Access Endpoints:
 * 🌐 **Web UI**: [http://localhost:5173](http://localhost:5173)
 * ⚙️ **FastAPI REST API**: [http://localhost:8000](http://localhost:8000)
 * 🩺 **Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
@@ -144,59 +262,101 @@ docker-compose up --build
 
 ---
 
-## 💻 5. Local Development Setup (Without Docker)
+### Option B: Local Development Setup (Without Docker)
 
-### Prerequisites
-* Python 3.11+
-* Node.js v18+ and npm
-* Git
-
-### Backend Setup
-```bash
-# 1. Navigate to backend
+#### 1. Backend Server
+**Windows (PowerShell):**
+```powershell
+# Navigate to backend
 cd backend
 
-# 2. Install dependencies
+# Create & activate virtual environment (optional but recommended)
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Launch FastAPI development server (with automatic SQLite fallback)
-$env:PYTHONPATH="."  # PowerShell (or export PYTHONPATH="." on macOS/Linux)
+# Run FastAPI with live reload (automatic SQLite fallback enabled)
+$env:PYTHONPATH="."
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### Frontend Setup
+**macOS / Linux (Bash):**
 ```bash
-# In a new terminal window
+# Navigate to backend
+cd backend
+
+# Create & activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run FastAPI with live reload
+export PYTHONPATH="."
+python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+#### 2. Frontend Server
+In a separate terminal:
+```bash
+# Navigate to frontend
 cd frontend
 
-# Install packages & run Vite dev server
+# Install npm dependencies
 npm install
+
+# Launch Vite development server
 npm run dev
 ```
 
-Visit [http://localhost:5173](http://localhost:5173).
+Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🧪 6. Testing & Quality Assurance
+## 🧪 8. Tests & Quality Assurance
 
-The codebase includes an automated test suite verifying all critical paths:
+### 8.1 Automated Test Suite
+The backend includes an automated `pytest` suite testing all critical paths: API contracts, RAG retrieval, model routing, Bleach security isolation, and Ship 30 essays.
 
+**Windows (PowerShell):**
 ```powershell
 $env:PYTHONPATH="backend"
 python -m pytest backend/tests -v
 ```
 
-### Test Suite Coverage:
-* `test_api.py`: Validates `/health`, session creation, message routing, and history retrieval.
-* `test_groq.py`: Validates Groq Cloud provider integration and sub-second generation.
-* `test_rag.py`: Verifies BM25 indexation across 55k+ chunks and top-K relevance.
-* `test_security.py`: Verifies Bleach HTML sanitization and script injection blocking.
-* `test_ship30.py`: Verifies Ship 30 essay formatting and structural components.
+**macOS / Linux (Bash):**
+```bash
+export PYTHONPATH="backend"
+python3 -m pytest backend/tests -v
+```
+
+**Run individual test suites:**
+```bash
+python -m pytest backend/tests/test_api.py -v       # API endpoints, sessions & persistence
+python -m pytest backend/tests/test_rag.py -v       # BM25 indexation across 55k+ chunks
+python -m pytest backend/tests/test_groq.py -v      # Groq model provider integration
+python -m pytest backend/tests/test_security.py -v  # Bleach HTML sanitizer & script stripping
+python -m pytest backend/tests/test_ship30.py -v    # Ship 30 essay structural formatting
+```
+
+### 8.2 Manual UI Test Plan
+Evaluators can verify the frontend in under 2 minutes:
+1. **Health Verification**: Open [http://localhost:8000/health](http://localhost:8000/health) and ensure status is `"healthy"`.
+2. **Knowledge Base Modal**: Click **"Knowledge Base"** in header; confirm **303 Episodes** and **55,396 Utterances** are displayed.
+3. **Model Switching**: Switch model dropdown between `groq`, `ollama`, and `mock_local`.
+4. **Chat & Grounding**: Send a query in **Ask Lenny** mode and verify citations display guest names and timestamps with clickable YouTube links.
+5. **Artifact Viewer**: Switch to **Ship 30 Essay** or **Strategy Canvas** mode, send a prompt, and verify the side-by-side artifact workspace renders interactive HTML.
+6. **Persistence**: Refresh the browser; verify previous chat session and message history reload from database.
 
 ---
 
-## 🎥 7. Evaluator Walkthrough & Demo Script
+## 🎥 9. Demo Video & Evaluator Walkthrough
+
+▶️ **YouTube Video Walkthrough**: [https://youtu.be/ploj5hJbAvA](https://youtu.be/ploj5hJbAvA)  
+*(Demonstrates end-to-end user workflows, grounded RAG citations, local Ollama model execution, interactive strategy canvas rendering, and technical trade-off decisions.)*
 
 When evaluating or recording a walkthrough of **The Lenny Growth Assistant**:
 
@@ -236,7 +396,20 @@ When evaluating or recording a walkthrough of **The Lenny Growth Assistant**:
 
 ---
 
-## ⚖️ 8. Technical Decisions & Trade-Offs
+## 🛠 10. Troubleshooting
+
+| Issue / Symptom | Probable Cause | Exact Solution / Running Code |
+| :--- | :--- | :--- |
+| **Ollama connection refused** (`http://localhost:11434`) | Ollama daemon is not running or model not pulled | Run `ollama serve` in a background terminal, then run `ollama pull llama3.2`. Verify with `curl http://localhost:11434/api/tags`. |
+| **Missing or invalid Cloud API key** | `GROQ_API_KEY` or `ANTHROPIC_API_KEY` is unset or invalid | Set valid API key in `.env` or switch to zero-key offline mode by setting `LLM_PROVIDER=mock_local`. |
+| **PostgreSQL connection refused on port 5432** | Docker is stopped or local Postgres service is not running | The system **automatically falls back to SQLite** (`lenny_growth_assistant.db`). To explicitly run SQLite locally, set `DATABASE_URL=sqlite+aiosqlite:///./lenny_growth_assistant.db` in `.env`. |
+| **Port 8000 or 5173 already in use** | Stale Python or Vite process still occupying port | Windows: `Stop-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess -Force`<br>macOS/Linux: `lsof -ti:8000 \| xargs kill -9` |
+| **Docker Compose build timeout or OOM** | Docker Desktop has low memory allocated | Allocate at least 4 GB RAM in Docker Desktop Settings. Alternatively, run standalone local dev mode via `uvicorn` and `npm run dev`. |
+| **Initial startup lag (~3-5s)** | BM25 RAG index building across 55k+ chunks | Normal cold-start behavior; indexing occurs once in-memory during FastAPI startup and provides sub-5ms retrieval for all subsequent queries. |
+
+---
+
+## ⚖️ 11. Technical Decisions & Trade-Offs
 
 1. **BM25 Okapi vs. Heavy Dense Vector Databases**:
    - *Decision*: Implemented an in-memory BM25 Okapi retrieval engine.
@@ -253,7 +426,7 @@ When evaluating or recording a walkthrough of **The Lenny Growth Assistant**:
 
 ---
 
-## 📂 9. Project Structure
+## 📂 12. Project Structure
 
 ```
 ├── Logo.svg                     # Official brand logo
@@ -287,9 +460,13 @@ When evaluating or recording a walkthrough of **The Lenny Growth Assistant**:
 
 ---
 
-## 🤝 10. Operational Handoff
+## 🤝 13. Operational Handoff & Submission
 
 This repository is ready for immediate deployment and evaluation:
 * **Repository**: [https://github.com/sarthar3/Lenny-Growth-Assistant](https://github.com/sarthar3/Lenny-Growth-Assistant)
+* **Demo Video**: [https://youtu.be/ploj5hJbAvA](https://youtu.be/ploj5hJbAvA)
 * **Author**: Sarthar
 * **Role**: Forward Deployed Engineer Candidate
+* **Submission Form**: [Google Forms Submission Link](https://forms.gle/LgotDHNVxW1mbzNE7)
+* **Due Date**: 12/10/26 EOD
+
